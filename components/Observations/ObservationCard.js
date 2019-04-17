@@ -5,8 +5,10 @@ import {
   Text,
   Image,
   TouchableOpacity,
-  View
+  View,
+  Platform
 } from "react-native";
+import RNFS from "react-native-fs";
 
 import styles from "../../styles/menu/observations";
 import iconicTaxa from "../../assets/iconicTaxa";
@@ -16,17 +18,30 @@ type Props = {
   item: Object
 }
 
-
 const ObservationCard = ( { navigation, item }: Props ) => {
   const { taxon } = item;
   const { defaultPhoto } = taxon;
   let photo;
 
+  let seekV1Photo;
+
+  if ( Platform.OS === "ios" ) {
+    RNFS.readdir( `${RNFS.DocumentDirectoryPath}/large` ).then( ( result ) => {
+      result.forEach( ( path ) => {
+        if ( path === item.uuidString ) {
+          seekV1Photo = `${RNFS.DocumentDirectoryPath}/large/${result}`;
+        }
+      } );
+    } );
+  }
+
   if ( defaultPhoto ) {
-    if ( defaultPhoto.squareUrl ) {
-      photo = { uri: defaultPhoto.squareUrl };
-    } else if ( defaultPhoto.mediumUrl ) {
+    if ( defaultPhoto.mediumUrl ) {
       photo = { uri: defaultPhoto.mediumUrl };
+    } else if ( seekV1Photo ) {
+      photo = { uri: seekV1Photo };
+    } else if ( defaultPhoto.squareUrl ) {
+      photo = { uri: defaultPhoto.squareUrl };
     } else if ( taxon.iconicTaxonId ) {
       photo = iconicTaxa[taxon.iconicTaxonId];
     }
