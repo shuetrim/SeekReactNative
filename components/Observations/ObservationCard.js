@@ -1,6 +1,6 @@
 // @flow
 
-import React from "react";
+import React, { Component } from "react";
 import {
   Text,
   Image,
@@ -18,56 +18,74 @@ type Props = {
   item: Object
 }
 
-const ObservationCard = ( { navigation, item }: Props ) => {
-  const { taxon } = item;
-  const { defaultPhoto } = taxon;
-  let photo;
+class ObservationCard extends Component<Props> {
+  constructor() {
+    super();
 
-  let seekV1Photo;
+    this.state = {
+      photo: null
+    };
+  }
 
-  if ( Platform.OS === "ios" ) {
-    RNFS.readdir( `${RNFS.DocumentDirectoryPath}/large` ).then( ( result ) => {
-      result.forEach( ( path ) => {
-        if ( path === item.uuidString ) {
-          seekV1Photo = `${RNFS.DocumentDirectoryPath}/large/${result}`;
-        }
+  componentWillMount() {
+    this.selectPhoto();
+  }
+
+  setPhoto( photo ) {
+    this.setState( { photo } );
+  }
+
+  selectPhoto() {
+    const { item } = this.props;
+    const { taxon } = item;
+    const { defaultPhoto } = taxon;
+
+    if ( Platform.OS === "ios" && `${RNFS.DocumentDirectoryPath}/large` ) {
+      RNFS.readdir( `${RNFS.DocumentDirectoryPath}/large` ).then( ( result ) => {
+        result.forEach( ( path ) => {
+          if ( path === item.uuidString ) {
+            const photoPath = `${RNFS.DocumentDirectoryPath}/large/${path}`;
+            this.setPhoto( { uri: photoPath } );
+          } else if ( defaultPhoto ) {
+            if ( defaultPhoto.mediumUrl ) {
+              this.setPhoto( { uri: defaultPhoto.mediumUrl } );
+            } else if ( defaultPhoto.squareUrl ) {
+              this.setPhoto( { uri: defaultPhoto.squareUrl } );
+            } else {
+              this.setPhoto( iconicTaxa[taxon.iconicTaxonId] );
+            }
+          } else {
+            this.setPhoto( iconicTaxa[taxon.iconicTaxonId] );
+          }
+        } );
       } );
-    } );
-  }
-
-  if ( defaultPhoto ) {
-    if ( defaultPhoto.mediumUrl ) {
-      photo = { uri: defaultPhoto.mediumUrl };
-    } else if ( seekV1Photo ) {
-      photo = { uri: seekV1Photo };
-    } else if ( defaultPhoto.squareUrl ) {
-      photo = { uri: defaultPhoto.squareUrl };
-    } else if ( taxon.iconicTaxonId ) {
-      photo = iconicTaxa[taxon.iconicTaxonId];
     }
-  } else {
-    photo = iconicTaxa[taxon.iconicTaxonId];
   }
 
+  render() {
+    const { navigation, item } = this.props;
+    const { photo } = this.state;
+    const { taxon } = item;
 
-  return (
-    <TouchableOpacity
-      style={styles.card}
-      onPress={ () => navigation.push( "Species", {
-        id: taxon.id,
-        commonName: taxon.preferredCommonName,
-        scientificName: taxon.name
-      } )}
-    >
-      <Image style={styles.image} source={photo} />
-      <View style={styles.speciesNameContainer}>
-        <Text style={styles.commonNameText}>
-          {taxon.preferredCommonName ? taxon.preferredCommonName : taxon.name}
-        </Text>
-        <Text style={styles.scientificNameText}>{taxon.name}</Text>
-      </View>
-    </TouchableOpacity>
-  );
-};
+    return (
+      <TouchableOpacity
+        style={styles.card}
+        onPress={ () => navigation.push( "Species", {
+          id: taxon.id,
+          commonName: taxon.preferredCommonName,
+          scientificName: taxon.name
+        } )}
+      >
+        <Image style={styles.image} source={photo} />
+        <View style={styles.speciesNameContainer}>
+          <Text style={styles.commonNameText}>
+            {taxon.preferredCommonName ? taxon.preferredCommonName : taxon.name}
+          </Text>
+          <Text style={styles.scientificNameText}>{taxon.name}</Text>
+        </View>
+      </TouchableOpacity>
+    );
+  }
+}
 
 export default ObservationCard;
