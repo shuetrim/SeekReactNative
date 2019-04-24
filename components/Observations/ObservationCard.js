@@ -6,7 +6,8 @@ import {
   Image,
   TouchableOpacity,
   View,
-  Platform
+  Platform,
+  Alert
 } from "react-native";
 import RNFS from "react-native-fs";
 
@@ -44,7 +45,8 @@ class ObservationCard extends Component<Props> {
       RNFS.readdir( `${RNFS.DocumentDirectoryPath}/large` ).then( ( result ) => {
         result.forEach( ( path ) => {
           if ( path === item.uuidString ) {
-            const photoPath = `${RNFS.DocumentDirectoryPath}/large/${path}`;
+            const photoPath = `${RNFS.DocumentDirectoryPath}/large/${path}.jpeg`;
+            // Alert.alert( photoPath );
             this.setPhoto( { uri: photoPath } );
           } else if ( defaultPhoto ) {
             if ( defaultPhoto.mediumUrl ) {
@@ -58,6 +60,8 @@ class ObservationCard extends Component<Props> {
             this.setPhoto( iconicTaxa[taxon.iconicTaxonId] );
           }
         } );
+      } ).catch( ( err ) => {
+        // Alert.alert( JSON.stringify( err ) );
       } );
     }
   }
