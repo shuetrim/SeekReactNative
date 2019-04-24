@@ -29,40 +29,47 @@ class ObservationCard extends Component<Props> {
   }
 
   componentWillMount() {
-    this.selectPhoto();
+    this.checkForSeekV1Photos();
   }
 
   setPhoto( photo ) {
     this.setState( { photo } );
   }
 
-  selectPhoto() {
+  checkForSeekV1Photos() {
+    const { item } = this.props;
+
+    const seekv1Photos = `${RNFS.DocumentDirectoryPath}/large`;
+
+    if ( Platform.OS === "ios" && seekv1Photos ) {
+      const photoPath = `${seekv1Photos}/${item.uuidString}`;
+      if ( RNFS.exists( photoPath ) ) {
+        RNFS.readFile( photoPath, { encoding: "base64" } ).then( ( encodedData ) => {
+          this.setPhoto( { uri: `data:image/jpeg;base64,${encodedData}` } );
+        } );
+      } else {
+        this.checkForSeekV2Photos();
+      }
+    } else {
+      this.checkForSeekV2Photos();
+    }
+  }
+
+  checkForSeekV2Photos() {
     const { item } = this.props;
     const { taxon } = item;
     const { defaultPhoto } = taxon;
 
-    if ( Platform.OS === "ios" && `${RNFS.DocumentDirectoryPath}/large` ) {
-      RNFS.readdir( `${RNFS.DocumentDirectoryPath}/large` ).then( ( result ) => {
-        result.forEach( ( path ) => {
-          if ( path === item.uuidString ) {
-            const photoPath = `${RNFS.DocumentDirectoryPath}/large/${path}.jpeg`;
-            // Alert.alert( photoPath );
-            this.setPhoto( { uri: photoPath } );
-          } else if ( defaultPhoto ) {
-            if ( defaultPhoto.mediumUrl ) {
-              this.setPhoto( { uri: defaultPhoto.mediumUrl } );
-            } else if ( defaultPhoto.squareUrl ) {
-              this.setPhoto( { uri: defaultPhoto.squareUrl } );
-            } else {
-              this.setPhoto( iconicTaxa[taxon.iconicTaxonId] );
-            }
-          } else {
-            this.setPhoto( iconicTaxa[taxon.iconicTaxonId] );
-          }
-        } );
-      } ).catch( ( err ) => {
-        // Alert.alert( JSON.stringify( err ) );
-      } );
+    if ( defaultPhoto ) {
+      if ( defaultPhoto.mediumUrl ) {
+        this.setPhoto( { uri: defaultPhoto.mediumUrl } );
+      } else if ( defaultPhoto.squareUrl ) {
+        this.setPhoto( { uri: defaultPhoto.squareUrl } );
+      } else {
+        this.setPhoto( iconicTaxa[taxon.iconicTaxonId] );
+      }
+    } else {
+      this.setPhoto( iconicTaxa[taxon.iconicTaxonId] );
     }
   }
 
