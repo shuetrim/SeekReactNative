@@ -28,13 +28,13 @@ const requiresParent = ( birthday ) => {
   return false;
 };
 
-const seenBeforeSeekV2 = ( seenDate ) => {
-  const apr5 = moment( "20190405" ).format( "YYYY-MM-DD" );
-  if ( moment( seenDate ).isBefore( apr5 ) ) {
-    return true;
-  }
-  return false;
-};
+// const seenBeforeSeekV2 = ( seenDate ) => {
+//   const apr5 = moment( "20190405" ).format( "YYYY-MM-DD" );
+//   if ( moment( seenDate ).isBefore( apr5 ) ) {
+//     return true;
+//   }
+//   return false;
+// };
 
 const checkIfChallengeAvailable = ( date ) => {
   if ( date <= new Date() ) {
@@ -44,7 +44,7 @@ const checkIfChallengeAvailable = ( date ) => {
 };
 
 export {
-  seenBeforeSeekV2,
+  // seenBeforeSeekV2,
   getPreviousAndNextMonth,
   checkIfChallengeAvailable,
   requiresParent

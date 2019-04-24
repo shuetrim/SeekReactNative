@@ -43,20 +43,21 @@ class ObservationCard extends Component<Props> {
 
     if ( Platform.OS === "ios" && seekv1Photos ) {
       const photoPath = `${seekv1Photos}/${item.uuidString}`;
-      if ( RNFS.exists( photoPath ) ) {
+      if ( !RNFS.exists( photoPath ) ) {
+        this.checkForSeekV2Photos( item );
+      } else {
         RNFS.readFile( photoPath, { encoding: "base64" } ).then( ( encodedData ) => {
           this.setPhoto( { uri: `data:image/jpeg;base64,${encodedData}` } );
+        } ).catch( () => {
+          this.checkForSeekV2Photos( item );
         } );
-      } else {
-        this.checkForSeekV2Photos();
       }
     } else {
-      this.checkForSeekV2Photos();
+      this.checkForSeekV2Photos( item );
     }
   }
 
-  checkForSeekV2Photos() {
-    const { item } = this.props;
+  checkForSeekV2Photos( item ) {
     const { taxon } = item;
     const { defaultPhoto } = taxon;
 
