@@ -45,6 +45,12 @@ export default StyleSheet.create( {
     letterSpacing: 1.0,
     marginBottom: 24
   },
+  blueHeaderText: {
+    color: colors.seekTeal
+  },
+  grayHeaderText: {
+    color: "#5e5e5e"
+  },
   speciesText: {
     textAlign: "center",
     fontFamily: fonts.book,

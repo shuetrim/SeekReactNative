@@ -43,7 +43,9 @@ const MatchScreen = ( {
           </View>
         </LinearGradient>
         <View style={styles.textContainer}>
-          <Text style={styles.headerText}>{i18n.t( "results.no_identification" ).toLocaleUpperCase()}</Text>
+          <Text style={[styles.headerText, styles.grayHeaderText]}>
+            {i18n.t( "results.no_identification" ).toLocaleUpperCase()}
+          </Text>
           <Text style={styles.text}>{i18n.t( "results.sorry" )}</Text>
           <TouchableOpacity
             style={[styles.button, styles.buttonGray]}
